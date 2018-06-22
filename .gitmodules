@@ -1,0 +1,12 @@
+[submodule "modules/roact"]
+	path = modules/roact
+	url = https://github.com/Roblox/roact.git
+[submodule "modules/rodux"]
+	path = modules/rodux
+	url = https://github.com/Roblox/rodux.git
+[submodule "modules/roact-rodux"]
+	path = modules/roact-rodux
+	url = https://github.com/Roblox/roact-rodux.git
+[submodule "modules/promise"]
+	path = modules/promise
+	url = https://github.com/LPGhatguy/roblox-lua-promise.git
