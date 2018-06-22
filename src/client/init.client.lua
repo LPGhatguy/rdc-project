@@ -1,22 +1,33 @@
-local Modules = game:GetService("ReplicatedStorage")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 -- Wait for our dependencies to be replicated
-Modules:WaitForChild("RDC")
-Modules:WaitForChild("Roact")
-Modules:WaitForChild("Rodux")
-Modules:WaitForChild("RoactRodux")
+ReplicatedStorage:WaitForChild("RDC")
+ReplicatedStorage:WaitForChild("Roact")
+ReplicatedStorage:WaitForChild("Rodux")
+ReplicatedStorage:WaitForChild("RoactRodux")
 
 local ClientApi = require(script.ClientApi)
 
 local api
 api = ClientApi:new({
-	CoolStoryClient = function(...)
-		print("Server acknolwedged me, gave me this:", ...)
+	CoolStoryClient = function(object)
+		print("Server acknowledged at", tick())
+		print("\tgave me this:", object)
+
+		for i = 0, 99 do
+			local copy = object:Clone()
+			copy.Position = Vector3.new(
+				(i % 10) * 7,
+				10,
+				(math.floor(i / 10) % 10) * 7
+			)
+			copy.Parent = game.Workspace
+		end
 	end,
 })
 
 api:waitForRemotes()
 
-print("Client ready!")
+print("Client ready at", tick())
 
 api:fire("ClientStart")
