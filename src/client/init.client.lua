@@ -10,8 +10,8 @@ local ClientApi = require(script.ClientApi)
 
 local api
 api = ClientApi:new({
-	CoolStoryClient = function()
-		print("Server acknolwedged me!")
+	CoolStoryClient = function(...)
+		print("Server acknolwedged me, gave me this:", ...)
 	end,
 })
 

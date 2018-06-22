@@ -35,7 +35,12 @@ function ServerApi.prototype:createRemotes()
 		self.remotes[name] = remote
 
 		if endpoint.from == "client" then
-			local handler = assert(self.handlers[name], "Need to implement " .. name)
+			local handler = self.handlers[name]
+
+			if handler == nil then
+				error(("Need to implement server handler for %q"):format(name), 2)
+			end
+
 			remote.OnServerEvent:Connect(handler)
 		end
 	end
@@ -53,7 +58,7 @@ function ServerApi.prototype:fireToOne(eventName, player, ...)
 	remote:FireClient(player, ...)
 end
 
-function ServerApi.prototype:fireEventToAll(eventName, ...)
+function ServerApi.prototype:broadcast(eventName, ...)
 	local endpoint = assert(ApiSpec[eventName])
 
 	assert(endpoint.from == "server")

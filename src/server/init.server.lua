@@ -4,7 +4,12 @@ local api
 api = ServerApi:new({
 	ClientStart = function(player)
 		print("Got ClientStart!")
-		api:fireToOne("CoolStoryClient", player)
+
+		local thing = Instance.new("Folder")
+		thing.Name = "ayy lmao"
+		thing.Parent = player.PlayerGui
+
+		api:fireToOne("CoolStoryClient", player, thing)
 	end,
 })
 

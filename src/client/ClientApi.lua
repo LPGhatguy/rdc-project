@@ -31,7 +31,12 @@ function RemoteApi.prototype:waitForRemotes()
 		self.remotes[name] = remote
 
 		if endpoint.from == "server" then
-			local handler = assert(self.handlers[name], "Need to implement " .. name)
+			local handler = self.handlers[name]
+
+			if handler == nil then
+				error(("Need to implement client handler for %q"):format(name), 2)
+			end
+
 			remote.OnClientEvent:Connect(handler)
 		end
 	end
