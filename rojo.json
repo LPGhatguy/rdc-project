@@ -1,0 +1,34 @@
+{
+  "name": "rdc-project",
+  "servePort": 8000,
+  "partitions": {
+    "common": {
+      "path": "src/client",
+      "target": "StarterPlayer.StarterPlayerScripts.RDC"
+    },
+    "server": {
+      "path": "src/server",
+      "target": "ServerScriptService.RDC"
+    },
+    "client": {
+      "path": "src/common",
+      "target": "ReplicatedStorage.RDC"
+    },
+    "modules/roact": {
+      "path": "modules/roact/lib",
+      "target": "ReplicatedStorage.Roact"
+    },
+    "modules/rodux": {
+      "path": "modules/rodux/lib",
+      "target": "ReplicatedStorage.Rodux"
+    },
+    "modules/roact-rodux": {
+      "path": "modules/roact-rodux/lib",
+      "target": "ReplicatedStorage.RoactRodux"
+    },
+    "modules/promise": {
+      "path": "modules/promise/lib",
+      "target": "ReplicatedStorage.Promise"
+    }
+  }
+}
