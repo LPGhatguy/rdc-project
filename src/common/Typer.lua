@@ -1,15 +1,23 @@
 local Typer = {}
 
-function Typer.checkArgs(spec, ...)
-	if select("#", ...) > #spec then
+function Typer.decorate(schema, fn)
+	return function(...)
+		Typer.checkArgs(schema, ...)
+
+		return fn(...)
+	end
+end
+
+function Typer.checkArgs(schema, ...)
+	if select("#", ...) > #schema then
 		local message = ("Too many arguments passed in. Expected %d arguments or fewer, got %d"):format(
-			#spec,
+			#schema,
 			select("#", ...)
 		)
 		error(message, 3)
 	end
 
-	for index, entry in ipairs(spec) do
+	for index, entry in ipairs(schema) do
 		local value = select(index, ...)
 		local success, err = entry(value, index)
 
@@ -17,6 +25,8 @@ function Typer.checkArgs(spec, ...)
 			error(err, 3)
 		end
 	end
+
+	return ...
 end
 
 function Typer.instance(argName, expectedInstanceClass)
@@ -66,6 +76,23 @@ function Typer.type(argName, expectedType)
 				index,
 				expectedType,
 				actualType
+			)
+
+			return false, message
+		end
+	end
+end
+
+function Typer.any(argName)
+	assert(typeof(argName) == "string", "argName must be a string")
+
+	return function(value, index)
+		if value ~= nil then
+			return true
+		else
+			local message = ("Bad argument %s (#%d), expected any non-nil value, got nil"):format(
+				argName,
+				index
 			)
 
 			return false, message
