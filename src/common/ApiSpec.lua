@@ -1,4 +1,14 @@
+local Typer = require(script.Parent.Typer)
+
 return {
-	ClientStart = { from = "client" },
-	CoolStoryClient = { from = "server" },
+	clientStart = {
+		from = "client",
+		arguments = {},
+	},
+	coolStoryClient = {
+		from = "server",
+		arguments = {
+			Typer.instance("voxelPiece", "Part"),
+		},
+	},
 }

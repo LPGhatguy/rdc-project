@@ -9,11 +9,8 @@ ReplicatedStorage:WaitForChild("RoactRodux")
 local ClientApi = require(script.ClientApi)
 
 local api
-api = ClientApi:new({
-	CoolStoryClient = function(object)
-		print("Server acknowledged at", tick())
-		print("\tgave me this:", object)
-
+api = ClientApi.connect({
+	coolStoryClient = function(object)
 		for i = 0, 99 do
 			local copy = object:Clone()
 			copy.Position = Vector3.new(
@@ -26,8 +23,6 @@ api = ClientApi:new({
 	end,
 })
 
-api:waitForRemotes()
+print("Client ready!")
 
-print("Client ready at", tick())
-
-api:fire("ClientStart")
+api:clientStart()

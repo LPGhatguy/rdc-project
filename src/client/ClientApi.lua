@@ -1,55 +1,46 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local ApiSpec = require(ReplicatedStorage.RDC.ApiSpec)
+local Typer = require(ReplicatedStorage.RDC.Typer)
 
-local RemoteApi = {}
-RemoteApi.prototype = {}
-RemoteApi.__index = RemoteApi.prototype
+local ClientApi = {}
+ClientApi.prototype = {}
+ClientApi.__index = ClientApi.prototype
 
-function RemoteApi:new(handlers)
+function ClientApi.connect(handlers)
 	assert(typeof(handlers) == "table")
 
-	local new = {
-		handlers = handlers,
-		remotes = nil,
-	}
+	local self = {}
 
-	setmetatable(new, RemoteApi)
-
-	return new
-end
-
-function RemoteApi.prototype:waitForRemotes()
-	assert(self.remotes == nil)
-
-	self.remotes = {}
+	setmetatable(self, ClientApi)
 
 	local remotes = ReplicatedStorage:WaitForChild("Events")
 
 	for name, endpoint in pairs(ApiSpec) do
 		local remote = remotes:WaitForChild(name)
-		self.remotes[name] = remote
 
 		if endpoint.from == "server" then
-			local handler = self.handlers[name]
+			local handler = handlers[name]
 
 			if handler == nil then
 				error(("Need to implement client handler for %q"):format(name), 2)
 			end
 
-			remote.OnClientEvent:Connect(handler)
+			remote.OnClientEvent:Connect(function(...)
+				Typer.checkArgs(endpoint.arguments, ...)
+
+				handler(...)
+			end)
+		else
+			self[name] = function(_, ...)
+				Typer.checkArgs(endpoint.arguments, ...)
+
+				remote:FireServer(...)
+			end
 		end
 	end
+
+	return self
 end
 
-function RemoteApi.prototype:fire(eventName, ...)
-	local endpoint = assert(ApiSpec[eventName])
-
-	assert(endpoint.from == "client")
-
-	local remote = assert(self.remotes[eventName])
-
-	remote:FireServer(...)
-end
-
-return RemoteApi
+return ClientApi

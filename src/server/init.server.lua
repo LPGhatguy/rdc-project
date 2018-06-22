@@ -1,10 +1,8 @@
 local ServerApi = require(script.ServerApi)
 
 local api
-api = ServerApi:new({
-	ClientStart = function(player)
-		print("Got ClientStart!")
-
+api = ServerApi.create({
+	clientStart = function(player)
 		local x = math.random(2, 6)
 		local thing = Instance.new("Part")
 		thing.Name = "Hey"
@@ -13,10 +11,8 @@ api = ServerApi:new({
 
 		thing.Parent = player.PlayerGui
 
-		api:fireToOne("CoolStoryClient", player, thing)
+		api:coolStoryClient(player, thing)
 	end,
 })
-
-api:createRemotes()
 
 print("Server ready!")
