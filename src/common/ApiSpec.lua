@@ -3,12 +3,12 @@ local Typer = require(script.Parent.Typer)
 return {
 	clientStart = {
 		from = "client",
-		arguments = {},
+		arguments = Typer.args(),
 	},
 	coolStoryClient = {
 		from = "server",
-		arguments = {
-			Typer.instance("voxelPiece", "Part"),
-		},
+		arguments = Typer.args(
+			{"voxelPiece", Typer.instance("Part")}
+		),
 	},
 }

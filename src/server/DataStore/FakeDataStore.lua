@@ -1,4 +1,5 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local HttpService = game:GetService("HttpService")
 
 local Promise = require(ReplicatedStorage.Promise)
 local Typer = require(ReplicatedStorage.RDC.Typer)
@@ -13,17 +14,19 @@ setmetatable(FakeDataStore, {
 	__mode = "v",
 })
 
-local newSchema = {
-	Typer.type("name", "string"),
-}
+local newArgs = Typer.args(
+	{"name", Typer.type("string")}
+)
 function FakeDataStore.new(name)
-	Typer.checkArgs(newSchema, name)
+	newArgs(name)
 
 	if FakeDataStore.__instances[name] then
 		return FakeDataStore.__instances[name]
 	end
 
-	local self = {}
+	local self = {
+		__values = {}
+	}
 	setmetatable(self, FakeDataStore)
 
 	FakeDataStore[name] = self
@@ -31,23 +34,27 @@ function FakeDataStore.new(name)
 	return self
 end
 
-local readSchema = {
-	Typer.type("key", "string"),
-}
+local readArgs = Typer.args(
+	{"key", Typer.type("string")}
+)
 function FakeDataStore.prototype:read(key)
-	Typer.checkArgs(readSchema, key)
+	readArgs(key)
 
-	error("NYI")
+	local value = HttpService:JSONDecode(key)
+
+	return Promise.resolve(value)
 end
 
-local writeSchema = {
-	Typer.type("key", "string"),
-	Typer.any("value"),
-}
+local writeArgs = Typer.args(
+	{"key", Typer.type("string")},
+	{"value", Typer.any()}
+)
 function FakeDataStore.prototype:write(key, value)
-	Typer.checkArgs(writeSchema, key, value)
+	writeArgs(key, value)
 
-	error("NYI")
+	self.__values[key] = HttpService:JSONEncode(value)
+
+	return Promise.resolve()
 end
 
 return FakeDataStore

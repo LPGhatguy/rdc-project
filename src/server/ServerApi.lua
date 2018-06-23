@@ -32,14 +32,14 @@ function ServerApi.create(handlers)
 			remote.OnServerEvent:Connect(function(player, ...)
 				assert(typeof(player) == "Instance" and player:IsA("Player"))
 
-				Typer.checkArgs(endpoint.arguments, ...)
+				endpoint.arguments(...)
 
 				handler(player, ...)
 			end)
 		else
 			if endpoint.broadcast then
 				self[name] = function(_, ...)
-					Typer.checkArgs(endpoint.arguments, ...)
+					endpoint.arguments(...)
 
 					remote:FireAllClients(...)
 				end
@@ -47,7 +47,7 @@ function ServerApi.create(handlers)
 				self[name] = function(_, player, ...)
 					assert(typeof(player) == "Instance" and player:IsA("Player"))
 
-					Typer.checkArgs(endpoint.arguments, ...)
+					endpoint.arguments(...)
 
 					remote:FireClient(player, ...)
 				end

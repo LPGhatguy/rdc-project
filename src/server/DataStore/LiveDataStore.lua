@@ -14,11 +14,11 @@ setmetatable(LiveDataStore, {
 	__mode = "v",
 })
 
-local newSchema = {
-	Typer.type("name", "string"),
-}
+local newArgs = Typer.args(
+	{"name", Typer.type("string")}
+)
 function LiveDataStore.new(name)
-	Typer.checkArgs(newSchema, name)
+	newArgs(name)
 
 	if LiveDataStore.__instances[name] then
 		return LiveDataStore.__instances[name]
@@ -34,23 +34,43 @@ function LiveDataStore.new(name)
 	return self
 end
 
-local readSchema = {
-	Typer.type("key", "string"),
-}
+local readArgs = Typer.args(
+	{"key", Typer.type("string")}
+)
 function LiveDataStore.prototype:read(key)
-	Typer.checkArgs(readSchema, key)
+	readArgs(key)
 
-	error("NYI")
+	return Promise.new(function(resolve, reject)
+		spawn(function()
+			local success, result = self.__internal.GetAsync(self.__internal, key)
+
+			if success then
+				resolve(result)
+			else
+				reject(result)
+			end
+		end)
+	end)
 end
 
-local writeSchema = {
-	Typer.type("key", "string"),
-	Typer.any("value"),
-}
+local writeArgs = Typer.args(
+	{"key", Typer.type("string")},
+	{"value", Typer.any()}
+)
 function LiveDataStore.prototype:write(key, value)
-	Typer.checkArgs(writeSchema, key, value)
+	writeArgs(key, value)
 
-	error("NYI")
+	return Promise.new(function(resolve, reject)
+		spawn(function()
+			local success, result = self.__internal.SetAsync(self.__internal, key, value)
+
+			if success then
+				resolve(result)
+			else
+				reject(result)
+			end
+		end)
+	end)
 end
 
 return LiveDataStore

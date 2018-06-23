@@ -27,13 +27,13 @@ function ClientApi.connect(handlers)
 			end
 
 			remote.OnClientEvent:Connect(function(...)
-				Typer.checkArgs(endpoint.arguments, ...)
+				endpoint.arguments(...)
 
 				handler(...)
 			end)
 		else
 			self[name] = function(_, ...)
-				Typer.checkArgs(endpoint.arguments, ...)
+				endpoint.arguments(...)
 
 				remote:FireServer(...)
 			end
