@@ -40,9 +40,17 @@ local readArgs = Typer.args(
 function FakeDataStore.prototype:read(key)
 	readArgs(key)
 
-	local value = HttpService:JSONDecode(key)
+	local value = self.__values[key]
 
-	return Promise.resolve(value)
+	if value == nil then
+		return Promise.resolve(nil)
+	end
+
+	if value.type == "table" then
+		return Promise.resolve(HttpService:JSONDecode(value.value))
+	else
+		return Promise.resolve(value.value)
+	end
 end
 
 local writeArgs = Typer.args(
@@ -52,7 +60,19 @@ local writeArgs = Typer.args(
 function FakeDataStore.prototype:write(key, value)
 	writeArgs(key, value)
 
-	self.__values[key] = HttpService:JSONEncode(value)
+	local valueType = typeof(value)
+
+	if valueType == "table" then
+		self.__values[key] = {
+			type = valueType,
+			value = HttpService:JSONEncode(value),
+		}
+	else
+		self.__values[key] = {
+			type = valueType,
+			value = value,
+		}
+	end
 
 	return Promise.resolve()
 end

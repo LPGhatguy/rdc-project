@@ -17,13 +17,11 @@ api = ServerApi.create({
 
 print("Server ready!")
 
--- local foo = DataStore.newLive("hello")
--- foo:write("hello", "world")
--- 	:andThen(
--- 		function(...)
--- 			print("Success!", ...)
--- 		end,
--- 		function(...)
--- 			warn("Failed!", ...)
--- 		end
--- 	)
+local foo = DataStore.new("hello")
+foo:write("hello", "world")
+	:andThen(function()
+		return foo:read("hello")
+	end)
+	:andThen(function(value)
+		print(value)
+	end)

@@ -1,7 +1,6 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local ApiSpec = require(ReplicatedStorage.RDC.ApiSpec)
-local Typer = require(ReplicatedStorage.RDC.Typer)
 
 local ClientApi = {}
 ClientApi.prototype = {}
