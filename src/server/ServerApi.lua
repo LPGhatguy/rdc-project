@@ -55,8 +55,13 @@ function ServerApi.create(handlers)
 	end
 
 	remotes.Parent = ReplicatedStorage
+	self.remotes = remotes
 
 	return self
+end
+
+function ServerApi.prototype:destroy()
+	self.remotes:Destroy()
 end
 
 return ServerApi

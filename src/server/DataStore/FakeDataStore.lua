@@ -1,7 +1,7 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local HttpService = game:GetService("HttpService")
 
-local Promise = require(ReplicatedStorage.Promise)
+local Promise = require(ReplicatedStorage.Modules.Promise)
 local Typer = require(ReplicatedStorage.RDC.Typer)
 
 local FakeDataStore = {}

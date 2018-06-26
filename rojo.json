@@ -16,19 +16,19 @@
     },
     "modules/roact": {
       "path": "modules/roact/lib",
-      "target": "ReplicatedStorage.Roact"
+      "target": "ReplicatedStorage.Modules.Roact"
     },
     "modules/rodux": {
       "path": "modules/rodux/lib",
-      "target": "ReplicatedStorage.Rodux"
+      "target": "ReplicatedStorage.Modules.Rodux"
     },
     "modules/roact-rodux": {
       "path": "modules/roact-rodux/lib",
-      "target": "ReplicatedStorage.RoactRodux"
+      "target": "ReplicatedStorage.Modules.RoactRodux"
     },
     "modules/promise": {
       "path": "modules/promise/lib",
-      "target": "ReplicatedStorage.Promise"
+      "target": "ReplicatedStorage.Modules.Promise"
     }
   }
 }

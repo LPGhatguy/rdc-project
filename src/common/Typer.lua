@@ -1,10 +1,12 @@
 local Typer = {}
 
-local function makeCheck(name, fn)
+local IS_SCHEMA = newproxy(true)
+
+local function makeSchema(name, fn)
 	local check = {
-		isCheck = true,
+		[IS_SCHEMA] = true,
 		name = name,
-		fn = fn,
+		validate = fn,
 	}
 
 	setmetatable(check, {
@@ -14,41 +16,6 @@ local function makeCheck(name, fn)
 	})
 
 	return check
-end
-
-function Typer.decorate(schema, fn)
-	return function(...)
-		Typer.checkArgs(schema, ...)
-
-		return fn(...)
-	end
-end
-
-function Typer.checkArgs(schema, ...)
-	if select("#", ...) > #schema then
-		local message = ("Too many arguments passed in. Expected %d arguments or fewer, got %d"):format(
-			#schema,
-			select("#", ...)
-		)
-		error(message, 3)
-	end
-
-	for index, check in ipairs(schema) do
-		local value = select(index, ...)
-		local success, err = check.fn(value)
-
-		if not success then
-			local message = ("Bad argument %s (#%d), expected %s, but %s"):format(
-				"<unknown>",
-				index,
-				check.name,
-				err
-			)
-			error(message, 3)
-		end
-	end
-
-	return ...
 end
 
 function Typer.args(...)
@@ -63,18 +30,18 @@ function Typer.args(...)
 			error(message, 3)
 		end
 
-		for index, argSchema in ipairs(argsSchema) do
-			local argName = argSchema[1]
-			local argCheck = argSchema[2]
+		for index, arg in ipairs(argsSchema) do
+			local argName = arg[1]
+			local argSchema = arg[2]
 			local value = select(index, ...)
 
-			local success, err = argCheck.fn(value)
+			local success, err = argSchema.validate(value)
 
 			if not success then
 				local message = ("Bad argument %s (#%d), expected %s, but %s"):format(
 					argName,
 					index,
-					argCheck.name,
+					argSchema.name,
 					err
 				)
 				error(message, 3)
@@ -89,7 +56,7 @@ function Typer.instance(expectedInstanceClass)
 
 	local name = ("Instance(%s)"):format(expectedInstanceClass)
 
-	return makeCheck(name, function(value)
+	return makeSchema(name, function(value)
 		local actualType = typeof(value)
 
 		if actualType ~= "Instance" then
@@ -111,7 +78,7 @@ end
 function Typer.type(expectedType)
 	assert(typeof(expectedType) == "string", "expectedType must be a string")
 
-	return makeCheck(expectedType, function(value)
+	return makeSchema(expectedType, function(value)
 		local actualType = typeof(value)
 		if actualType == expectedType then
 			return true
@@ -124,7 +91,7 @@ function Typer.type(expectedType)
 end
 
 function Typer.any()
-	return makeCheck("any", function(value)
+	return makeSchema("any", function(value)
 		if value ~= nil then
 			return true
 		else
@@ -136,11 +103,11 @@ function Typer.any()
 end
 
 function Typer.optional(innerCheck)
-	assert(typeof(innerCheck) == "table" and innerCheck.isCheck)
+	assert(typeof(innerCheck) == "table" and innerCheck[IS_SCHEMA])
 
 	local name = ("optional(%s)"):format(innerCheck.name)
 
-	return makeCheck(name, function(value)
+	return makeSchema(name, function(value)
 		if value == nil then
 			return true
 		else
@@ -150,11 +117,11 @@ function Typer.optional(innerCheck)
 end
 
 function Typer.listOf(innerCheck)
-	assert(typeof(innerCheck) == "table" and innerCheck.isCheck)
+	assert(typeof(innerCheck) == "table" and innerCheck[IS_SCHEMA])
 
-	local name = ("list(%s"):format(innerCheck.name)
+	local name = ("list(%s)"):format(innerCheck.name)
 
-	return makeCheck(name, function(list)
+	return makeSchema(name, function(list)
 		local actualType = typeof(list)
 
 		if actualType ~= "table" then
@@ -172,6 +139,63 @@ function Typer.listOf(innerCheck)
 
 			if not success then
 				return false, ("had bad value at key %d, %s"):format(key, err)
+			end
+		end
+
+		return true
+	end)
+end
+
+function Typer.mapOf(keyCheck, valueCheck)
+	assert(typeof(keyCheck) == "table" and keyCheck[IS_SCHEMA])
+	assert(typeof(valueCheck) == "table" and valueCheck[IS_SCHEMA])
+
+	local name = ("map(%s, %s)"):format(keyCheck.name, valueCheck.name)
+
+	local tableTypeCheck = Typer.type("table")
+
+	return makeSchema(name, function(map)
+		local mapOk, mapErr = tableTypeCheck(map)
+
+		if not mapOk then
+			return false, mapErr
+		end
+
+		for key, value in pairs(map) do
+			local keyOk, keyErr = keyCheck(key)
+
+			if not keyOk then
+				return false, ("had bad key %s: %s"):format(tostring(key), keyErr)
+			end
+
+			local valueOk, valueErr = keyCheck(value)
+
+			if not valueOk then
+				return false, ("had bad value %s at key %s"):format(tostring(value), tostring(key), valueErr)
+			end
+		end
+
+		return true
+	end)
+end
+
+function Typer.object(name, shape)
+	assert(typeof(shape) == "table" and not shape[IS_SCHEMA])
+
+	return makeSchema(name, function(object)
+		for key, valueCheck in pairs(shape) do
+			local value = object[key]
+
+			local ok, err = valueCheck(value)
+
+			if not ok then
+				return false, ("had bad key %s: %s"):format(tostring(key), err)
+			end
+		end
+
+		for key, value in pairs(object) do
+			if shape[key] == nil then
+				return false, ("had unknown key %s with value %s"):format(tostring(key), tostring(value))
 			end
 		end
 
