@@ -14,6 +14,10 @@
       "path": "src/common",
       "target": "ReplicatedStorage.RDC"
     },
+    "hot-reload": {
+      "path": "src/HotReload.lua",
+      "target": "ReplicatedStorage.HotReload"
+    },
     "modules/roact": {
       "path": "modules/roact/lib",
       "target": "ReplicatedStorage.Modules.Roact"

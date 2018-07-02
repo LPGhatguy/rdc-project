@@ -8,17 +8,18 @@ ReplicatedStorage:WaitForChild("RDC")
 local Modules = ReplicatedStorage:WaitForChild("Modules")
 
 local Roact = require(Modules.Roact)
+local Rodux = require(Modules.Rodux)
+local RoactRodux = require(Modules.RoactRodux)
 
 local HotReloaded = ReplicatedStorage:WaitForChild("HotReloaded")
 
-local ui
+local cleanup = {}
 
-local hotReloadConnection
-hotReloadConnection = HotReloaded.OnClientEvent:Connect(function()
-	hotReloadConnection:Disconnect()
+HotReloaded.OnClientInvoke = function()
+	HotReloaded.OnClientInvoke = nil
 
-	if ui ~= nil then
-		Roact.unmount(ui)
+	for _, fn in ipairs(cleanup) do
+		fn()
 	end
 
 	-- Do the job of StarterPlayerScripts over again to restart this script
@@ -26,7 +27,7 @@ hotReloadConnection = HotReloaded.OnClientEvent:Connect(function()
 	local parent = script.Parent
 	script:Destroy()
 	newScript.Parent = parent
-end)
+end
 
 local ClientApi = require(script.ClientApi)
 local UI = require(script.Components.UI)
@@ -34,7 +35,47 @@ local UI = require(script.Components.UI)
 local LocalPlayer = Players.LocalPlayer
 
 local api
+local store
+
+local function reducer(state, action)
+	state = state or 0
+
+	if action.type == "increment" then
+		return state + 1
+	end
+
+	return state
+end
+
+local function main()
+	print("Client starting...")
+
+	local ui = Roact.mount(Roact.createElement(RoactRodux.StoreProvider, {
+		store = store,
+	}, {
+		UI = Roact.createElement(UI),
+	}), LocalPlayer.PlayerGui, "UI")
+
+	table.insert(cleanup, function()
+		Roact.unmount(ui)
+	end)
+end
+
 api = ClientApi.connect({
+	initialStoreState = function(state)
+		store = Rodux.Store.new(reducer, state, {Rodux.loggerMiddleware})
+
+		table.insert(cleanup, function()
+			store:destruct()
+		end)
+
+		main()
+	end,
+
+	storeAction = function(action)
+		store:dispatch(action)
+	end,
+
 	coolStoryClient = function(object)
 		for i = 0, 99 do
 			local copy = object:Clone()
@@ -51,5 +92,3 @@ api = ClientApi.connect({
 print("Client ready!")
 
 api:clientStart()
-
-ui = Roact.mount(Roact.createElement(UI), LocalPlayer.PlayerGui, "UI")

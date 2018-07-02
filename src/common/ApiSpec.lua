@@ -5,10 +5,17 @@ return {
 		from = "client",
 		arguments = Typer.args(),
 	},
-	coolStoryClient = {
+	initialStoreState = {
 		from = "server",
 		arguments = Typer.args(
-			{"voxelPiece", Typer.instance("Part")}
-		),
+			{"state", Typer.any()}
+		)
+	},
+	storeAction = {
+		from = "server",
+		broadcast = true,
+		arguments = Typer.args(
+			{"action", Typer.type("table")}
+		)
 	},
 }

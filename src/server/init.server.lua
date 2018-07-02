@@ -1,12 +1,21 @@
-local Players = game:GetService("Players")
+repeat
+	wait()
+until script.Parent ~= nil
 
-local hotReload = require(script.hotReload)
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local HotReload = require(ReplicatedStorage.HotReload)
+
+local savedState = HotReload.getSavedState()
 
 local api
+local store
+local running = true
 
 -- This order is important, otherwise client/server scripts could start running
 -- before common modules get refreshed.
-hotReload({
+HotReload.start({
 	watch = {
 		game:GetService("ReplicatedStorage").Modules,
 		game:GetService("ReplicatedStorage").RDC,
@@ -14,9 +23,21 @@ hotReload({
 		game:GetService("ServerScriptService").RDC,
 	},
 	beforeUnload = function()
+		running = false
+
+		local newSavedState = {
+			storeState = store:getState(),
+		}
+
 		if api ~= nil then
 			api:destroy()
 		end
+
+		if store ~= nil then
+			store:destruct()
+		end
+
+		return newSavedState
 	end,
 	afterReload = function()
 		for _, player in ipairs(Players:GetPlayers()) do
@@ -25,20 +46,48 @@ hotReload({
 	end,
 })
 
+local function reducer(state, action)
+	state = state or 0
+
+	if action.type == "increment" then
+		return state + 1
+	end
+
+	return state
+end
+
 local ServerApi = require(script.ServerApi)
-local DataStore = require(script.DataStore)
+local Rodux = require(ReplicatedStorage.Modules.Rodux)
+
+local initialState = nil
+if savedState ~= nil then
+	initialState = savedState.storeState
+end
+
+local function networkMiddleware(nextDispatch)
+	return function(action)
+		api:storeAction(action)
+
+		return nextDispatch(action)
+	end
+end
+
+local middleware = {networkMiddleware}
+
+store = Rodux.Store.new(reducer, initialState, middleware)
 
 api = ServerApi.create({
 	clientStart = function(player)
-		local thing = Instance.new("Part")
-		thing.Name = "Hey"
-		thing.Size = Vector3.new(math.random(2, 6), math.random(2, 6), math.random(2, 6))
-		thing.Anchored = true
-
-		thing.Parent = player.PlayerGui
-
-		api:coolStoryClient(player, thing)
+		api:initialStoreState(player, store:getState())
 	end,
 })
 
 print("Server ready!")
+
+while running do
+	wait(1)
+
+	store:dispatch({
+		type = "increment",
+	})
+end

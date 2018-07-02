@@ -1,14 +1,14 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Players = game:GetService("Players")
 
 local reloadScheduled = false
 
-local reloadBindable = Instance.new("RemoteEvent")
+local reloadBindable = Instance.new("RemoteFunction")
 reloadBindable.Name = "HotReloaded"
 reloadBindable.Parent = ReplicatedStorage
 
 local function listenToChangesRecursive(root, connections, callback)
 	table.insert(connections, (root.Changed:Connect(callback)))
-	table.insert(connections, (root.ChildAdded:Connect(callback)))
 
 	for _, child in ipairs(root:GetChildren()) do
 		listenToChangesRecursive(child, connections, callback)
@@ -24,10 +24,16 @@ local function replace(object)
 	object:Destroy()
 end
 
-local function hotReload(options)
+local savedState = nil
+
+local HotReload = {}
+
+function HotReload.start(options)
 	local objectsToWatch = options.watch
 	local beforeUnload = options.beforeUnload
 	local afterReload = options.afterReload
+
+	print("HotReload started.")
 
 	local connections = {}
 
@@ -36,33 +42,44 @@ local function hotReload(options)
 			return
 		end
 
+		print("Scheduled hot reload!")
+
 		reloadScheduled = true
 
-		spawn(function()
-			for _, connection in ipairs(connections) do
-				connection:Disconnect()
-			end
+		for _, connection in ipairs(connections) do
+			connection:Disconnect()
+		end
 
-			beforeUnload()
+		wait(0.1)
 
-			for _, object in ipairs(objectsToWatch) do
-				replace(object)
-			end
+		savedState = beforeUnload()
 
-			wait(0)
+		for _, object in ipairs(objectsToWatch) do
+			replace(object)
+		end
 
-			afterReload()
-			reloadBindable:FireAllClients()
+		wait(0.05)
 
-			reloadScheduled = false
-		end)
+		for _, player in ipairs(Players:GetPlayers()) do
+			reloadBindable:InvokeClient(player)
+		end
+
+		afterReload()
+
+		reloadScheduled = false
 	end
 
 	spawn(function()
 		for _, object in ipairs(objectsToWatch) do
+			table.insert(connections, (object.DescendantAdded:Connect(changeCallback)))
+
 			listenToChangesRecursive(object, connections, changeCallback)
 		end
 	end)
 end
 
-return hotReload
+function HotReload.getSavedState()
+	return savedState
+end
+
+return HotReload
