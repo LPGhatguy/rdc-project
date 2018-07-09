@@ -14,9 +14,13 @@
       "path": "src/common",
       "target": "ReplicatedStorage.Modules.RDC"
     },
-    "hot-reload": {
-      "path": "src/HotReload.lua",
-      "target": "ReplicatedStorage.HotReload"
+    "hot-reload-server": {
+      "path": "src/HotReloadServer.lua",
+      "target": "ReplicatedStorage.HotReloadServer"
+    },
+    "hot-reload-client": {
+      "path": "src/HotReloadClient.lua",
+      "target": "ReplicatedStorage.HotReloadClient"
     },
     "modules/roact": {
       "path": "modules/roact/lib",

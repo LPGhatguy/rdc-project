@@ -26,14 +26,12 @@ end
 
 local savedState = nil
 
-local HotReload = {}
+local HotReloadServer = {}
 
-function HotReload.start(options)
+function HotReloadServer.start(options)
 	local objectsToWatch = options.watch
 	local beforeUnload = options.beforeUnload
 	local afterReload = options.afterReload
-
-	print("HotReload started.")
 
 	local connections = {}
 
@@ -58,7 +56,7 @@ function HotReload.start(options)
 			replace(object)
 		end
 
-		wait(0.05)
+		wait(0.1)
 
 		for _, player in ipairs(Players:GetPlayers()) do
 			reloadBindable:InvokeClient(player)
@@ -78,8 +76,8 @@ function HotReload.start(options)
 	end)
 end
 
-function HotReload.getSavedState()
+function HotReloadServer.getSavedState()
 	return savedState
 end
 
-return HotReload
+return HotReloadServer

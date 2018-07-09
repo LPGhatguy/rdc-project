@@ -1,3 +1,10 @@
+--[[
+	Serves as the entry-point to the server code.
+
+	This file contains a bit of ceremony to set up hot-reloading, which is only
+	used during development.
+]]
+
 repeat
 	wait()
 until script.Parent ~= nil
@@ -5,19 +12,24 @@ until script.Parent ~= nil
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local HotReload = require(ReplicatedStorage.HotReload)
-local main = require(script.main)
+local HotReloadServer = require(ReplicatedStorage.HotReloadServer)
+
+local savedState = HotReloadServer.getSavedState()
+local savedActions = {}
+
+if savedState ~= nil then
+	savedActions = savedState.savedActions
+end
 
 local context = {
-	savedState = HotReload.getSavedState(),
 	running = true,
 	destructors = {},
-	store = nil,
+	savedActions = savedActions,
 }
 
--- This order is important, otherwise client/server scripts could start running
--- before common modules get refreshed.
-HotReload.start({
+HotReloadServer.start({
+	-- The order of objects to watch is important, otherwise a hot-reloaded
+	-- server might start running before the modules it depends on are reloaded.
 	watch = {
 		game:GetService("ReplicatedStorage").Modules,
 		game:GetService("StarterPlayer").StarterPlayerScripts.RDC,
@@ -25,14 +37,6 @@ HotReload.start({
 	},
 	beforeUnload = function()
 		context.running = false
-
-		local savedState = nil
-		if context.store ~= nil then
-			savedState = {
-				storeState = context.store:getState(),
-			}
-			context.store:destruct()
-		end
 
 		for _, destructor in ipairs(context.destructors) do
 			local ok, result = pcall(destructor)
@@ -42,13 +46,13 @@ HotReload.start({
 			end
 		end
 
-		return savedState
+		return {
+			savedActions = context.savedActions,
+		}
 	end,
 	afterReload = function()
-		for _, player in ipairs(Players:GetPlayers()) do
-			player:LoadCharacter()
-		end
 	end,
 })
 
+local main = require(script.main)
 main(context)

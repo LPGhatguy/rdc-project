@@ -1,29 +1,48 @@
+--[[
+	This is the entry-point for the client.
+
+	It contains setup code for hot-reloading, which is used in development only.
+]]
+
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local StarterPlayer = game:GetService("StarterPlayer")
 
-local HotReloaded = ReplicatedStorage:WaitForChild("HotReloaded")
+local HotReloadClient = require(ReplicatedStorage.HotReloadClient)
 
-local main = require(script.main)
+local savedState = HotReloadClient.getSavedState()
+local savedActions = {}
+
+if savedState ~= nil then
+	savedActions = savedState.savedActions
+end
 
 local context = {
 	destructors = {},
+	savedActions = savedActions,
 	running = true,
 }
 
-HotReloaded.OnClientInvoke = function()
-	HotReloaded.OnClientInvoke = nil
+HotReloadClient.start({
+	getNext = function()
+		return StarterPlayer.StarterPlayerScripts.RDC:Clone()
+	end,
 
-	context.running = false
+	getCurrent = function()
+		return script
+	end,
 
-	for _, fn in ipairs(context.destructors) do
-		fn()
-	end
+	beforeUnload = function()
+		context.running = false
 
-	-- Do the job of StarterPlayerScripts over again to restart this script
-	local newScript = StarterPlayer.StarterPlayerScripts.RDC:Clone()
-	local parent = script.Parent
-	script:Destroy()
-	newScript.Parent = parent
-end
+		for _, fn in ipairs(context.destructors) do
+			fn()
+		end
 
+		return {
+			savedActions = context.savedActions,
+		}
+	end,
+})
+
+local main = require(script.main)
 main(context)
