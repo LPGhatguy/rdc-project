@@ -39,6 +39,12 @@ function ClientApi.connect(handlers)
 		end
 	end
 
+	for name in pairs(handlers) do
+		if ApiSpec[name] == nil then
+			error(("Invalid handler %q specified!"):format(name), 2)
+		end
+	end
+
 	return self
 end
 

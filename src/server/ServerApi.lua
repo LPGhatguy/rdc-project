@@ -52,6 +52,12 @@ function ServerApi.create(handlers)
 		end
 	end
 
+	for name in pairs(handlers) do
+		if ApiSpec[name] == nil then
+			error(("Invalid handler %q specified!"):format(name), 2)
+		end
+	end
+
 	remotes.Parent = ReplicatedStorage
 	self.remotes = remotes
 
