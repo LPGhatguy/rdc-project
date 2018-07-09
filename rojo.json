@@ -12,7 +12,7 @@
     },
     "client": {
       "path": "src/common",
-      "target": "ReplicatedStorage.RDC"
+      "target": "ReplicatedStorage.Modules.RDC"
     },
     "hot-reload": {
       "path": "src/HotReload.lua",

@@ -20,7 +20,6 @@ local context = {
 HotReload.start({
 	watch = {
 		game:GetService("ReplicatedStorage").Modules,
-		game:GetService("ReplicatedStorage").RDC,
 		game:GetService("StarterPlayer").StarterPlayerScripts.RDC,
 		game:GetService("ServerScriptService").RDC,
 	},

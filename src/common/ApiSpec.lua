@@ -13,7 +13,6 @@ return {
 	},
 	storeAction = {
 		from = "server",
-		broadcast = true,
 		arguments = Typer.args(
 			{"action", Typer.type("table")}
 		)

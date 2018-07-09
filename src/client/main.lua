@@ -1,22 +1,23 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 
--- Wait for our dependencies to be replicated
-ReplicatedStorage:WaitForChild("RDC")
-
 local Modules = ReplicatedStorage:WaitForChild("Modules")
 
 local Roact = require(Modules.Roact)
 local Rodux = require(Modules.Rodux)
 local RoactRodux = require(Modules.RoactRodux)
 
+local Dictionary = require(Modules.RDC.Dictionary)
+local commonReducers = require(Modules.RDC.commonReducers)
+
+local clientReducers = require(script.Parent.clientReducers)
 local ClientApi = require(script.Parent.ClientApi)
 local UI = require(script.Parent.Components.UI)
 
-local reducer = require(ReplicatedStorage.RDC.reducer)
-
 return function(context)
 	local LocalPlayer = Players.LocalPlayer
+
+	local reducer = Rodux.combineReducers(Dictionary.join(commonReducers, clientReducers))
 
 	local api
 	local store

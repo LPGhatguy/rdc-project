@@ -1,13 +1,11 @@
-local function networkMiddleware(shouldReplicate, replicateCallback)
+local function networkMiddleware(replicate)
 	return function(nextDispatch, store)
 		return function(action)
 			local beforeState = store:getState()
 			local result = nextDispatch(action)
 			local afterState = store:getState()
 
-			if shouldReplicate(action, beforeState, afterState) then
-				replicateCallback(action)
-			end
+			replicate(action, beforeState, afterState)
 
 			return result
 		end

@@ -1,10 +1,12 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local ApiSpec = require(ReplicatedStorage.RDC.ApiSpec)
+local ApiSpec = require(ReplicatedStorage.Modules.RDC.ApiSpec)
 
 local ServerApi = {}
 ServerApi.prototype = {}
 ServerApi.__index = ServerApi.prototype
+
+ServerApi.AllPlayers = newproxy(true)
 
 function ServerApi.create(handlers)
 	assert(typeof(handlers) == "table")
@@ -36,17 +38,13 @@ function ServerApi.create(handlers)
 				handler(player, ...)
 			end)
 		else
-			if endpoint.broadcast then
-				self[name] = function(_, ...)
-					endpoint.arguments(...)
+			self[name] = function(_, player, ...)
+				endpoint.arguments(...)
 
+				if player == ServerApi.AllPlayers then
 					remote:FireAllClients(...)
-				end
-			else
-				self[name] = function(_, player, ...)
+				else
 					assert(typeof(player) == "Instance" and player:IsA("Player"))
-
-					endpoint.arguments(...)
 
 					remote:FireClient(player, ...)
 				end
