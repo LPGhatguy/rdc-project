@@ -25,6 +25,12 @@ return {
 		from = "client",
 		arguments = Typer.args(),
 	},
+	pickUpItem = {
+		from = "client",
+		arguments = Typer.args(
+			{"itemId", Typer.type("string")}
+		),
+	},
 	initialStoreState = {
 		from = "server",
 		arguments = Typer.args(

@@ -4,9 +4,19 @@ local Players = game:GetService("Players")
 local Modules = ReplicatedStorage.Modules
 
 local Rodux = require(Modules.Rodux)
+local RoactRodux = require(Modules.RoactRodux)
+RoactRodux.UNSTABLE_connect2 = RoactRodux.connect
+
+local RoduxVisualizer = require(Modules.RoduxVisualizer)
 
 local commonReducers = require(Modules.RDC.commonReducers)
 local Dictionary = require(Modules.RDC.Dictionary)
+local Item = require(Modules.RDC.objects.Item)
+
+local addPlayer = require(Modules.RDC.actions.addPlayer)
+local addItemsToPlayerInventory = require(Modules.RDC.actions.addItemsToPlayerInventory)
+local addItemsToWorld = require(Modules.RDC.actions.addItemsToWorld)
+local removeItemFromWorld = require(Modules.RDC.actions.removeItemFromWorld)
 
 local serverReducers = require(script.Parent.serverReducers)
 local ServerApi = require(script.Parent.ServerApi)
@@ -79,6 +89,10 @@ return function(context)
 		initialState = reducer(initialState, action)
 	end
 
+	local devTools = RoduxVisualizer.createDevTools({
+		mode = RoduxVisualizer.Mode.Plugin,
+	})
+
 	local middleware = {
 		-- Our minimal middleware to save actions to our context.
 		saveActionsMiddleware,
@@ -87,9 +101,7 @@ return function(context)
 		-- callback defined above.
 		networkMiddleware(replicate),
 
-		-- A built-in middleware that logs every action dispatched and the
-		-- resulting state.
-		-- Rodux.loggerMiddleware,
+		devTools.middleware,
 	}
 
 	local store = Rodux.Store.new(reducer, initialState, middleware)
@@ -98,7 +110,45 @@ return function(context)
 	-- clients to listen to.
 	api = ServerApi.create({
 		clientStart = function(player)
+			store:dispatch(addPlayer(tostring(player.UserId)))
+
+			-- local playerItems = {}
+			-- for _ = 1, 5 do
+			-- 	local item = Item.new()
+			-- 	playerItems[item.id] = item
+			-- end
+
+			-- store:dispatch(addItemsToPlayerInventory(tostring(player.UserId), playerItems))
+
+			local worldItems = {}
+			for _ = 1, 5 do
+				local item = Item.new()
+				local x = math.random(-10, 10)
+				local z = math.random(-10, 10)
+
+				item.position = Vector3.new(x, 3, z)
+
+				worldItems[item.id] = item
+			end
+
+			store:dispatch(addItemsToWorld(worldItems))
+
 			api:initialStoreState(player, store:getState())
+		end,
+
+		pickUpItem = function(player, itemId)
+			local state = store:getState()
+			local item = state.world[itemId]
+
+			if item == nil then
+				warn("Player can't pick up " .. itemId)
+				return
+			end
+
+			store:dispatch(removeItemFromWorld(itemId))
+			store:dispatch(addItemsToPlayerInventory(tostring(player.UserId), {
+				[itemId] = item,
+			}))
 		end,
 	})
 
@@ -113,13 +163,4 @@ return function(context)
 	end)
 
 	print("Server started!")
-
-	-- Finally, start actually running our game server!
-	while context.running do
-		store:dispatch({
-			type = "increment",
-		})
-
-		wait(1)
-	end
 end

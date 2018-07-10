@@ -7,7 +7,7 @@ local function playerInventories(state, action)
 		return Dictionary.join(state, {
 			[action.playerId] = {},
 		})
-	elseif action.type == "addItemToPlayerInventory" then
+	elseif action.type == "addItemsToPlayerInventory" then
 		local inventory = state[action.playerId]
 
 		if inventory == nil then
@@ -18,9 +18,7 @@ local function playerInventories(state, action)
 		end
 
 		return Dictionary.join(state, {
-			[action.playerId] = Dictionary.join(inventory, {
-				[action.item.id] = action.item,
-			}),
+			[action.playerId] = Dictionary.join(inventory, action.items),
 		})
 	end
 

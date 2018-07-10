@@ -1,10 +1,12 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Workspace = game:GetService("Workspace")
 
 local Roact = require(ReplicatedStorage.Modules.Roact)
 
 local e = Roact.createElement
 
 local InventoryMenu = require(script.Parent.InventoryMenu)
+local World = require(script.Parent.World)
 
 local UI = Roact.Component:extend("UI")
 
@@ -21,6 +23,14 @@ function UI:render()
 		}, {
 			Inventory = e(InventoryMenu),
 		}),
+
+		World = e(Roact.Portal, {
+			target = Workspace,
+		}, {
+			World = e(World, {
+				api = self.props.api,
+			}),
+		})
 	})
 end
 

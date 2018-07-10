@@ -37,6 +37,10 @@
     "modules/promise": {
       "path": "modules/promise/lib",
       "target": "ReplicatedStorage.Modules.Promise"
+    },
+    "modules/rodux-visualizer": {
+      "path": "modules/rodux-visualizer/lib",
+      "target": "ReplicatedStorage.Modules.RoduxVisualizer"
     }
   }
 }

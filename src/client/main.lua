@@ -7,6 +7,10 @@ local Roact = require(Modules.Roact)
 local Rodux = require(Modules.Rodux)
 local RoactRodux = require(Modules.RoactRodux)
 
+RoactRodux.UNSTABLE_connect2 = RoactRodux.connect
+
+local RoduxVisualizer = require(Modules.RoduxVisualizer)
+
 local Dictionary = require(Modules.RDC.Dictionary)
 local commonReducers = require(Modules.RDC.commonReducers)
 
@@ -26,7 +30,9 @@ return function(context)
 		local ui = Roact.mount(Roact.createElement(RoactRodux.StoreProvider, {
 			store = store,
 		}, {
-			UI = Roact.createElement(UI),
+			UI = Roact.createElement(UI, {
+				api = api,
+			}),
 		}), LocalPlayer.PlayerGui, "UI")
 
 		table.insert(context.destructors, function()
@@ -34,12 +40,6 @@ return function(context)
 		end)
 
 		print("Client started!")
-
-		while context.running do
-			store:dispatch({ type = "clientIncrement" })
-
-			wait(1)
-		end
 	end
 
 	local function saveActionsMiddleware(nextDispatch)
@@ -52,6 +52,13 @@ return function(context)
 		end
 	end
 
+	local devTools = RoduxVisualizer.createDevTools({
+		mode = RoduxVisualizer.Mode.Integrated,
+		toggleHotkey = Enum.KeyCode.Y,
+		visibleOnStartup = false,
+		attachTo = LocalPlayer:WaitForChild("PlayerGui"),
+	})
+
 	api = ClientApi.connect({
 		initialStoreState = function(initialState)
 			-- Apply any saved actions from the last reload.
@@ -63,8 +70,9 @@ return function(context)
 			end
 
 			store = Rodux.Store.new(reducer, initialState, {
+				Rodux.thunkMiddleware,
 				saveActionsMiddleware,
-				-- Rodux.loggerMiddleware,
+				devTools.middleware,
 			})
 
 			table.insert(context.destructors, function()
