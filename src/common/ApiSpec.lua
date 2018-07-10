@@ -21,26 +21,26 @@
 local Typer = require(script.Parent.Typer)
 
 return {
-	clientStart = {
-		from = "client",
-		arguments = Typer.args(),
+	fromClient = {
+		clientStart = {
+			arguments = Typer.args(),
+		},
+		pickUpItem = {
+			arguments = Typer.args(
+				{"itemId", Typer.type("string")}
+			),
+		},
 	},
-	pickUpItem = {
-		from = "client",
-		arguments = Typer.args(
-			{"itemId", Typer.type("string")}
-		),
-	},
-	initialStoreState = {
-		from = "server",
-		arguments = Typer.args(
-			{"state", Typer.any()}
-		)
-	},
-	storeAction = {
-		from = "server",
-		arguments = Typer.args(
-			{"action", Typer.type("table")}
-		)
+	fromServer = {
+		initialStoreState = {
+			arguments = Typer.args(
+				{"state", Typer.any()}
+			)
+		},
+		storeAction = {
+			arguments = Typer.args(
+				{"action", Typer.type("table")}
+			)
+		},
 	},
 }

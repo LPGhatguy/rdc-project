@@ -15,32 +15,34 @@ function ClientApi.connect(handlers)
 
 	local remotes = ReplicatedStorage:WaitForChild("Events")
 
-	for name, endpoint in pairs(ApiSpec) do
-		local remote = remotes:WaitForChild(name)
+	for name, endpoint in pairs(ApiSpec.fromClient) do
+		local remote = remotes:WaitForChild("fromClient-" .. name)
 
-		if endpoint.from == "server" then
-			local handler = handlers[name]
+		self[name] = function(_, ...)
+			endpoint.arguments(...)
 
-			if handler == nil then
-				error(("Need to implement client handler for %q"):format(name), 2)
-			end
-
-			remote.OnClientEvent:Connect(function(...)
-				endpoint.arguments(...)
-
-				handler(...)
-			end)
-		else
-			self[name] = function(_, ...)
-				endpoint.arguments(...)
-
-				remote:FireServer(...)
-			end
+			remote:FireServer(...)
 		end
 	end
 
+	for name, endpoint in pairs(ApiSpec.fromServer) do
+		local remote = remotes:WaitForChild("fromServer-" .. name)
+
+		local handler = handlers[name]
+
+		if handler == nil then
+			error(("Need to implement client handler for %q"):format(name), 2)
+		end
+
+		remote.OnClientEvent:Connect(function(...)
+			endpoint.arguments(...)
+
+			handler(...)
+		end)
+	end
+
 	for name in pairs(handlers) do
-		if ApiSpec[name] == nil then
+		if ApiSpec.fromServer[name] == nil then
 			error(("Invalid handler %q specified!"):format(name), 2)
 		end
 	end

@@ -18,42 +18,46 @@ function ServerApi.create(handlers)
 	local remotes = Instance.new("Folder")
 	remotes.Name = "Events"
 
-	for name, endpoint in pairs(ApiSpec) do
+	for name, endpoint in pairs(ApiSpec.fromClient) do
 		local remote = Instance.new("RemoteEvent")
-		remote.Name = name
+		remote.Name = "fromClient-" .. name
 		remote.Parent = remotes
 
-		if endpoint.from == "client" then
-			local handler = handlers[name]
+		local handler = handlers[name]
 
-			if handler == nil then
-				error(("Need to implement server handler for %q"):format(name), 2)
-			end
+		if handler == nil then
+			error(("Need to implement server handler for %q"):format(name), 2)
+		end
 
-			remote.OnServerEvent:Connect(function(player, ...)
+		remote.OnServerEvent:Connect(function(player, ...)
+			assert(typeof(player) == "Instance" and player:IsA("Player"))
+
+			endpoint.arguments(...)
+
+			handler(player, ...)
+		end)
+	end
+
+	for name, endpoint in pairs(ApiSpec.fromServer) do
+		local remote = Instance.new("RemoteEvent")
+		remote.Name = "fromServer-" .. name
+		remote.Parent = remotes
+
+		self[name] = function(_, player, ...)
+			endpoint.arguments(...)
+
+			if player == ServerApi.AllPlayers then
+				remote:FireAllClients(...)
+			else
 				assert(typeof(player) == "Instance" and player:IsA("Player"))
 
-				endpoint.arguments(...)
-
-				handler(player, ...)
-			end)
-		else
-			self[name] = function(_, player, ...)
-				endpoint.arguments(...)
-
-				if player == ServerApi.AllPlayers then
-					remote:FireAllClients(...)
-				else
-					assert(typeof(player) == "Instance" and player:IsA("Player"))
-
-					remote:FireClient(player, ...)
-				end
+				remote:FireClient(player, ...)
 			end
 		end
 	end
 
 	for name in pairs(handlers) do
-		if ApiSpec[name] == nil then
+		if ApiSpec.fromClient[name] == nil then
 			error(("Invalid handler %q specified!"):format(name), 2)
 		end
 	end
