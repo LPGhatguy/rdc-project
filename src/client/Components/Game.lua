@@ -8,9 +8,9 @@ local e = Roact.createElement
 local InventoryMenu = require(script.Parent.InventoryMenu)
 local World = require(script.Parent.World)
 
-local UI = Roact.Component:extend("UI")
+local function Game(props)
+	local api = props.api
 
-function UI:render()
 	return e("ScreenGui", {
 		ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
 		ResetOnSpawn = false,
@@ -28,10 +28,10 @@ function UI:render()
 			target = Workspace,
 		}, {
 			World = e(World, {
-				api = self.props.api,
+				api = api,
 			}),
 		})
 	})
 end
 
-return UI
+return Game

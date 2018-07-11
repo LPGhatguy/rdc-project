@@ -4,50 +4,59 @@ local Roact = require(ReplicatedStorage.Modules.Roact)
 
 local e = Roact.createElement
 
-local ITEM_PADDING = 8
+local ITEM_PADDING = 4
+local ITEM_HEIGHT = 40
 
 local function Inventory(props)
-	local children = {}
+	local items = props.items
+	local onDropItem = props.onDropItem
 
 	local itemList = {}
 
-	for _, item in pairs(props.items) do
+	for _, item in pairs(items) do
 		table.insert(itemList, item)
 	end
 
 	table.sort(itemList, function(a, b)
-		return a.id < b.id
+		return a.name < b.name
 	end)
 
-	local i = 0
-	for _, item in ipairs(itemList) do
-		local x = (i % 4) / 4
-		local y = (math.floor(i / 4) % 4) / 4
+	local children = {}
 
+	children.Layout = e("UIListLayout", {
+		SortOrder = Enum.SortOrder.LayoutOrder,
+	})
+
+	for index, item in ipairs(itemList) do
 		local slot = e("Frame", {
-			Size = UDim2.new(0.25, 0, 0.25, 0),
-			Position = UDim2.new(x, 0, y, 0),
-			BackgroundTransparency = 1,
+			Size = UDim2.new(1, 0, 0, ITEM_HEIGHT),
+			BackgroundColor3 = Color3.new(1, 1, 1),
+			LayoutOrder = index,
 		}, {
-			Inner = e("TextLabel", {
+			Inner = e("TextButton", {
+				BackgroundTransparency = 1,
 				Size = UDim2.new(1, -ITEM_PADDING * 2, 1, -ITEM_PADDING * 2),
 				Position = UDim2.new(0, ITEM_PADDING, 0, ITEM_PADDING),
-				BackgroundColor3 = item.color,
-				Text = item.id,
+				Font = Enum.Font.SourceSans,
+				TextSize = 24,
+				Text = item.name,
 				TextWrap = true,
+
+				[Roact.Event.Activated] = function()
+					onDropItem(item.id)
+				end,
 			}),
 		})
 
 		children[item.id] = slot
-
-		i = i + 1
 	end
 
-	return e("Frame", {
+	return e("ScrollingFrame", {
 		Size = UDim2.new(1, 0, 1, 0),
 		BackgroundColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 		BackgroundTransparency = 0.5,
+		CanvasSize = UDim2.new(1, 0, 0, ITEM_HEIGHT * #itemList),
 	}, children)
 end
 

@@ -21,6 +21,7 @@ local removeItemFromWorld = require(Modules.RDC.actions.removeItemFromWorld)
 local serverReducers = require(script.Parent.serverReducers)
 local ServerApi = require(script.Parent.ServerApi)
 local networkMiddleware = require(script.Parent.networkMiddleware)
+local getRandomItemName = require(script.Parent.getRandomItemName)
 
 return function(context)
 	local reducer = Rodux.combineReducers(Dictionary.join(commonReducers, serverReducers))
@@ -112,21 +113,14 @@ return function(context)
 		clientStart = function(player)
 			store:dispatch(addPlayer(tostring(player.UserId)))
 
-			-- local playerItems = {}
-			-- for _ = 1, 5 do
-			-- 	local item = Item.new()
-			-- 	playerItems[item.id] = item
-			-- end
-
-			-- store:dispatch(addItemsToPlayerInventory(tostring(player.UserId), playerItems))
-
 			local worldItems = {}
-			for _ = 1, 5 do
+			for _ = 1, 15 do
 				local item = Item.new()
-				local x = math.random(-10, 10)
-				local z = math.random(-10, 10)
+				local x = math.random(-20, 20)
+				local z = math.random(-20, 20)
 
-				item.position = Vector3.new(x, 3, z)
+				item.position = Vector3.new(x, 1.5, z)
+				item.name = getRandomItemName()
 
 				worldItems[item.id] = item
 			end

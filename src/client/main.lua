@@ -16,7 +16,7 @@ local commonReducers = require(Modules.RDC.commonReducers)
 
 local clientReducers = require(script.Parent.clientReducers)
 local ClientApi = require(script.Parent.ClientApi)
-local UI = require(script.Parent.Components.UI)
+local Game = require(script.Parent.Components.Game)
 
 return function(context)
 	local LocalPlayer = Players.LocalPlayer
@@ -30,10 +30,10 @@ return function(context)
 		local ui = Roact.mount(Roact.createElement(RoactRodux.StoreProvider, {
 			store = store,
 		}, {
-			UI = Roact.createElement(UI, {
+			Game = Roact.createElement(Game, {
 				api = api,
 			}),
-		}), LocalPlayer.PlayerGui, "UI")
+		}), LocalPlayer.PlayerGui, "RDC Project")
 
 		table.insert(context.destructors, function()
 			Roact.unmount(ui)
