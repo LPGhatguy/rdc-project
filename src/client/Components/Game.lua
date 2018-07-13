@@ -9,8 +9,6 @@ local InventoryMenu = require(script.Parent.InventoryMenu)
 local World = require(script.Parent.World)
 
 local function Game(props)
-	local api = props.api
-
 	return e("ScreenGui", {
 		ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
 		ResetOnSpawn = false,
@@ -27,9 +25,7 @@ local function Game(props)
 		World = e(Roact.Portal, {
 			target = Workspace,
 		}, {
-			World = e(World, {
-				api = api,
-			}),
+			World = e(World),
 		})
 	})
 end

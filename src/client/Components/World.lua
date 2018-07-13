@@ -8,6 +8,7 @@ local Modules = ReplicatedStorage.Modules
 local Roact = require(Modules.Roact)
 local RoactRodux = require(Modules.RoactRodux)
 
+local getApiFromComponent = require(script.Parent.Parent.getApiFromComponent)
 local pickUpItem = require(script.Parent.Parent.thunks.pickUpItem)
 
 local e = Roact.createElement
@@ -21,6 +22,8 @@ function World:init()
 end
 
 function World:render()
+	local api = getApiFromComponent(self)
+
 	local children = {}
 
 	for id, item in pairs(self.props.world) do
@@ -47,7 +50,7 @@ function World:render()
 					return
 				end
 
-				self.props.pickUpItem(self.props.api, id)
+				self.props.pickUpItem(api, id)
 			end,
 		}, {
 			UIPart = e("Part", {
@@ -67,7 +70,7 @@ function World:render()
 						TextSize = 60,
 						Text = item.name,
 						TextWrap = true,
-						BackgroundColor3 = Color3.new(0.5, 0.3, 0.8),
+						BackgroundColor3 = Color3.fromRGB(4, 134, 204),
 						BackgroundTransparency = 0.3,
 						BorderSizePixel = 0,
 					}),

@@ -113,20 +113,6 @@ return function(context)
 		clientStart = function(player)
 			store:dispatch(addPlayer(tostring(player.UserId)))
 
-			local worldItems = {}
-			for _ = 1, 15 do
-				local item = Item.new()
-				local x = math.random(-20, 20)
-				local z = math.random(-20, 20)
-
-				item.position = Vector3.new(x, 1.5, z)
-				item.name = getRandomItemName()
-
-				worldItems[item.id] = item
-			end
-
-			store:dispatch(addItemsToWorld(worldItems))
-
 			api:initialStoreState(player, store:getState())
 		end,
 
@@ -155,6 +141,20 @@ return function(context)
 	table.insert(context.destructors, function()
 		api:destroy()
 	end)
+
+	local worldItems = {}
+	for _ = 1, 15 do
+		local item = Item.new()
+		local x = math.random(-20, 20)
+		local z = math.random(-20, 20)
+
+		item.position = Vector3.new(x, 1.5, z)
+		item.name = getRandomItemName()
+
+		worldItems[item.id] = item
+	end
+
+	store:dispatch(addItemsToWorld(worldItems))
 
 	print("Server started!")
 end

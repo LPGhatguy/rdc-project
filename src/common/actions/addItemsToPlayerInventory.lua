@@ -6,6 +6,7 @@ local function addItemsToPlayerInventory(playerId, items)
 		type = script.Name,
 		playerId = playerId,
 		items = items,
+		replicateTo = playerId,
 	}
 end
 

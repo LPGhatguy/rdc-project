@@ -1,4 +1,6 @@
-local Dictionary = require(script.Parent.Parent.Dictionary)
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local Dictionary = require(ReplicatedStorage.Modules.RDC.Dictionary)
 
 local function playerInventories(state, action)
 	state = state or {}

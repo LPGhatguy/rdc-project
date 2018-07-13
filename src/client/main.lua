@@ -16,7 +16,9 @@ local commonReducers = require(Modules.RDC.commonReducers)
 
 local clientReducers = require(script.Parent.clientReducers)
 local ClientApi = require(script.Parent.ClientApi)
+
 local Game = require(script.Parent.Components.Game)
+local ApiProvider = require(script.Parent.Components.ApiProvider)
 
 return function(context)
 	local LocalPlayer = Players.LocalPlayer
@@ -30,8 +32,10 @@ return function(context)
 		local ui = Roact.mount(Roact.createElement(RoactRodux.StoreProvider, {
 			store = store,
 		}, {
-			Game = Roact.createElement(Game, {
+			Roact.createElement(ApiProvider, {
 				api = api,
+			}, {
+				Game = Roact.createElement(Game),
 			}),
 		}), LocalPlayer.PlayerGui, "RDC Project")
 

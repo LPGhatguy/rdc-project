@@ -1,5 +1,4 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
 
 local Roact = require(ReplicatedStorage.Modules.Roact)
@@ -52,7 +51,7 @@ end
 InventoryMenu = RoactRodux.connect(
 	function(state)
 		return {
-			items = state.playerInventories[tostring(Players.LocalPlayer.UserId)],
+			items = state.inventory,
 		}
 	end
 )(InventoryMenu)
