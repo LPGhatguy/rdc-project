@@ -5,6 +5,8 @@ local Roact = require(ReplicatedStorage.Modules.Roact)
 local RoactRodux = require(ReplicatedStorage.Modules.RoactRodux)
 
 local Inventory = require(script.Parent.Inventory)
+local dropItem = require(script.Parent.Parent.thunks.dropItem)
+local getApiFromComponent = require(script.Parent.Parent.getApiFromComponent)
 
 local e = Roact.createElement
 
@@ -14,6 +16,8 @@ function InventoryMenu:init()
 	self.state = {
 		open = false,
 	}
+
+	self.api = getApiFromComponent(self)
 end
 
 function InventoryMenu:render()
@@ -23,6 +27,9 @@ function InventoryMenu:render()
 
 	return e(Inventory, {
 		items = self.props.items,
+		onDropItem = function(itemId)
+			self.props.dropItem(self.api, itemId)
+		end,
 	})
 end
 
@@ -52,6 +59,13 @@ InventoryMenu = RoactRodux.connect(
 	function(state)
 		return {
 			items = state.inventory,
+		}
+	end,
+	function(dispatch)
+		return {
+			dropItem = function(...)
+				return dispatch(dropItem(...))
+			end,
 		}
 	end
 )(InventoryMenu)

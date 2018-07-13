@@ -14,6 +14,7 @@ local Item = require(Modules.RDC.objects.Item)
 
 local addPlayer = require(Modules.RDC.actions.addPlayer)
 local addItemsToPlayerInventory = require(Modules.RDC.actions.addItemsToPlayerInventory)
+local removeItemFromPlayerInventory = require(Modules.RDC.actions.removeItemFromPlayerInventory)
 local addItemsToWorld = require(Modules.RDC.actions.addItemsToWorld)
 local removeItemFromWorld = require(Modules.RDC.actions.removeItemFromWorld)
 
@@ -121,13 +122,55 @@ return function(context)
 			local item = state.world[itemId]
 
 			if item == nil then
-				warn("Player can't pick up " .. itemId)
+				warn("Player can't pick up item " .. itemId)
 				return
 			end
 
 			store:dispatch(removeItemFromWorld(itemId))
 			store:dispatch(addItemsToPlayerInventory(tostring(player.UserId), {
 				[itemId] = item,
+			}))
+		end,
+
+		dropItem = function(player, itemId)
+			local playerId = tostring(player.UserId)
+			local state = store:getState()
+			local inventory = state.playerInventories[playerId]
+
+			if inventory == nil then
+				warn("Couldn't find player inventory " .. playerId)
+				return
+			end
+
+			local item = inventory[itemId]
+
+			if item == nil then
+				warn("Player can't drop item " .. itemId)
+				return
+			end
+
+			local character = player.Character
+
+			if character == nil then
+				warn("Can't drop item for player, no character: " .. playerId)
+				return
+			end
+
+			local root = character:FindFirstChild("HumanoidRootPart")
+
+			if root == nil then
+				warn("No HumanoidRootPart in character from " .. playerId)
+				return
+			end
+
+			local newPosition = root.Position + root.CFrame.lookVector * 4
+			local newItem = Dictionary.join(item, {
+				position = newPosition,
+			})
+
+			store:dispatch(removeItemFromPlayerInventory(playerId, itemId))
+			store:dispatch(addItemsToWorld({
+				[itemId] = newItem,
 			}))
 		end,
 	})

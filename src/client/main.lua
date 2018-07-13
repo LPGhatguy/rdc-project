@@ -27,6 +27,9 @@ return function(context)
 	local api
 	local store
 
+	-- We define our main function explicitly instead of running it right away
+	-- because we want to make sure we're connected and synced with the server
+	-- first.
 	local function main()
 		local ui = Roact.mount(Roact.createElement(RoactRodux.StoreProvider, {
 			store = store,
@@ -45,6 +48,8 @@ return function(context)
 		print("Client started!")
 	end
 
+	-- This is a custom Rodux middleware that automatically saves any local
+	-- actions that are dispatched in order to replay them when we hot-reload.
 	local function saveActionsMiddleware(nextDispatch)
 		return function(action)
 			if not action.replicated then

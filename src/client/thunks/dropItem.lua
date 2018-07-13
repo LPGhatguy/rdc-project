@@ -7,19 +7,19 @@
 	like sending events over the network!
 ]]
 
-local function pickUpItem(api, itemId)
+local function dropItem(api, itemId)
 	return function(store)
 		local state = store:getState()
 
-		local item = state.world[itemId]
+		local item = state.inventory[itemId]
 
 		if item == nil then
-			warn("Can't pick up item with ID " .. itemId)
+			warn("Can't drop item with ID " .. itemId)
 			return
 		end
 
-		api:pickUpItem(itemId)
+		api:dropItem(itemId)
 	end
 end
 
-return pickUpItem
+return dropItem

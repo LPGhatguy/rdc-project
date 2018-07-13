@@ -19,11 +19,11 @@ function World:init()
 	self.state = {
 		cameraCFrame = CFrame.new(),
 	}
+
+	self.api = getApiFromComponent(self)
 end
 
 function World:render()
-	local api = getApiFromComponent(self)
-
 	local children = {}
 
 	for id, item in pairs(self.props.world) do
@@ -50,7 +50,7 @@ function World:render()
 					return
 				end
 
-				self.props.pickUpItem(api, id)
+				self.props.pickUpItem(self.api, id)
 			end,
 		}, {
 			UIPart = e("Part", {

@@ -34,8 +34,12 @@ HotReloadClient.start({
 	beforeUnload = function()
 		context.running = false
 
-		for _, fn in ipairs(context.destructors) do
-			fn()
+		for _, destructor in ipairs(context.destructors) do
+			local ok, result = pcall(destructor)
+
+			if not ok then
+				warn("Failure during destruction: " .. result)
+			end
 		end
 
 		return {

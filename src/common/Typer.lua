@@ -1,3 +1,18 @@
+--[[
+	This is a prototype module that helps encode strong runtime type checks for
+	functions.
+
+	It's used in a couple different functions, as well as in ApiSpec to define
+	the correct arguments for use in RemoteEvent objects.
+
+	Typer is a prototype and won't make it into an official library in its
+	current form.
+
+	Check out "t" by Osyris for a more fleshed out approach:
+
+		https://github.com/osyrisrblx/t
+]]
+
 local Typer = {}
 
 local IS_SCHEMA = newproxy(true)

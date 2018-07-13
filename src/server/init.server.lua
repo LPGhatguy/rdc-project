@@ -9,7 +9,6 @@ repeat
 	wait()
 until script.Parent ~= nil
 
-local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local HotReloadServer = require(ReplicatedStorage.HotReloadServer)

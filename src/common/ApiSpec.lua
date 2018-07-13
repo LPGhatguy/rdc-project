@@ -30,6 +30,11 @@ return {
 				{"itemId", Typer.type("string")}
 			),
 		},
+		dropItem = {
+			arguments = Typer.args(
+				{"itemId", Typer.type("string")}
+			),
+		},
 	},
 	fromServer = {
 		initialStoreState = {
