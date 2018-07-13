@@ -8,7 +8,11 @@ This project falls short of being an actual game. It contains a list-based inven
 
 Stepping on an item adds it to your inventory, and clicking on an item in your inventory drops it on the ground in front of you.
 
-## Novel Features
+The UI, including the inventory and item name pop-ups are rendered using Roact.
+
+The game world itself is managed manually as an example of how to keep a non-declarative system in sync with Rodux.
+
+## Key Features
 
 ### Hot-Reloading Shim
 Roact and Rodux lend themselves well to hot-reloading code, which enables modifying a game as its running without restarting it or losing any state.
@@ -54,6 +58,17 @@ Types are checked on both the sending and receiving ends. On the sending end, we
 The type declaration library is located in `src/common/Typer.lua`. Most of the code is not all that pretty, and it underwent several iterations before landing where it is right now.
 
 [Osyris](https://github.com/osyrisrblx) built a runtime type checking system that's very similar to Typer called [t](https://github.com/osyrisrblx/t). If you're interested in pursuing this idea further, that's a great place to start.
+
+### Library Previews
+Some of the techniques and files in the project come from projects that we haven't released yet.
+
+`src/common/Dictionary.lua` and `src/common/None.lua` come from a project called Cryo that we'll be releasing later this year. Cryo provides utilities for writing functional programs and for working with immutable data structures, and `Dictionary` is one part of it!
+
+A number of source files reference the "Redux Visualizer" or "Redux DevTools". That project isn't quite ready for release, but when everything is hooked up, it looks like this:
+
+![An early version of this project with the Rodux Visualizer panel open](assets/rodux-visualizer.png)
+
+Using the visualizer, it's possible to inspect into both the client and server Rodux stores and visualize all of their values in real time, as well as step backwards and forward through time!
 
 ## License
 This project is available under the CC0 1.0 Universal license. Details are available in [LICENSE](LICENSE). Generally, that means you can whatever you want with it!

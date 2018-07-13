@@ -4,10 +4,9 @@ local Players = game:GetService("Players")
 local Modules = ReplicatedStorage.Modules
 
 local Rodux = require(Modules.Rodux)
-local RoactRodux = require(Modules.RoactRodux)
-RoactRodux.UNSTABLE_connect2 = RoactRodux.connect
 
-local RoduxVisualizer = require(Modules.RoduxVisualizer)
+-- The Rodux DevTools aren't available yet! Check the README for more details.
+-- local RoduxVisualizer = require(Modules.RoduxVisualizer)
 
 local commonReducers = require(Modules.RDC.commonReducers)
 local Dictionary = require(Modules.RDC.Dictionary)
@@ -90,9 +89,9 @@ return function(context)
 		initialState = reducer(initialState, action)
 	end
 
-	local devTools = RoduxVisualizer.createDevTools({
-		mode = RoduxVisualizer.Mode.Plugin,
-	})
+	-- local devTools = RoduxVisualizer.createDevTools({
+	-- 	mode = RoduxVisualizer.Mode.Plugin,
+	-- })
 
 	local middleware = {
 		-- Our minimal middleware to save actions to our context.
@@ -102,7 +101,8 @@ return function(context)
 		-- callback defined above.
 		networkMiddleware(replicate),
 
-		devTools.middleware,
+		-- Once the Rodux DevTools are available, this will be revisited!
+		-- devTools.middleware,
 	}
 
 	local store = Rodux.Store.new(reducer, initialState, middleware)

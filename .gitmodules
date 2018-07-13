@@ -10,6 +10,3 @@
 [submodule "modules/promise"]
 	path = modules/promise
 	url = https://github.com/LPGhatguy/roblox-lua-promise.git
-[submodule "modules/rodux-visualizer"]
-	path = modules/rodux-visualizer
-	url = git@github.com:Roblox/rodux-visualizer.git

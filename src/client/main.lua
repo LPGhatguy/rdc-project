@@ -7,9 +7,8 @@ local Roact = require(Modules.Roact)
 local Rodux = require(Modules.Rodux)
 local RoactRodux = require(Modules.RoactRodux)
 
-RoactRodux.UNSTABLE_connect2 = RoactRodux.connect
-
-local RoduxVisualizer = require(Modules.RoduxVisualizer)
+-- The Rodux DevTools aren't available yet! Check the README for more details.
+-- local RoduxVisualizer = require(Modules.RoduxVisualizer)
 
 local Dictionary = require(Modules.RDC.Dictionary)
 local commonReducers = require(Modules.RDC.commonReducers)
@@ -56,12 +55,15 @@ return function(context)
 		end
 	end
 
-	local devTools = RoduxVisualizer.createDevTools({
-		mode = RoduxVisualizer.Mode.Integrated,
-		toggleHotkey = Enum.KeyCode.Y,
-		visibleOnStartup = false,
-		attachTo = LocalPlayer:WaitForChild("PlayerGui"),
-	})
+	-- Once the Rodux DevTools are available publicly, this will be revisited.
+	-- When I was working on this project, I used this config:
+
+	-- local devTools = RoduxVisualizer.createDevTools({
+	-- 	mode = RoduxVisualizer.Mode.Integrated,
+	-- 	toggleHotkey = Enum.KeyCode.Y,
+	-- 	visibleOnStartup = false,
+	-- 	attachTo = LocalPlayer:WaitForChild("PlayerGui"),
+	-- })
 
 	api = ClientApi.connect({
 		initialStoreState = function(initialState)
@@ -74,9 +76,16 @@ return function(context)
 			end
 
 			store = Rodux.Store.new(reducer, initialState, {
+				-- Thunks are functions that we dispatch to the store. It's a
+				-- handy way to get a reference to the store and have
+				-- side-effects while still looking like regular actions!
 				Rodux.thunkMiddleware,
+
+				-- This is our custom hot-reloading middleware defined above.
 				saveActionsMiddleware,
-				devTools.middleware,
+
+				-- The Redux DevTools middleware, retrieved above.
+				-- devTools.middleware,
 			})
 
 			table.insert(context.destructors, function()

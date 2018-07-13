@@ -1,6 +1,10 @@
 --[[
 	Defines utilities for working with 'dictionary-like' tables.
 
+	This file, along with None.lua, come from a library we'll be releasing soon
+	called Cryo. It has a set of utilities, like this one, to help make working
+	with immutable data structures easier.
+
 	Dictionaries can be indexed by any value, but don't have the ordering
 	expectations that lists have.
 ]]
