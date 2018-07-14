@@ -5,6 +5,8 @@
 	used during development.
 ]]
 
+-- There's probably a more elegant approach to this that involves waiting on
+-- GetPropertyChangedSignal("Parent") instead of this loop.
 repeat
 	wait()
 until script.Parent ~= nil
@@ -24,6 +26,7 @@ local context = {
 	running = true,
 	destructors = {},
 	savedActions = savedActions,
+	wasReloaded = savedState ~= nil,
 }
 
 HotReloadServer.start({
@@ -34,6 +37,7 @@ HotReloadServer.start({
 		game:GetService("StarterPlayer").StarterPlayerScripts.RDC,
 		game:GetService("ServerScriptService").RDC,
 	},
+
 	beforeUnload = function()
 		context.running = false
 
@@ -49,7 +53,14 @@ HotReloadServer.start({
 			savedActions = context.savedActions,
 		}
 	end,
+
 	afterReload = function()
+		-- This function is sort of vestigial now.
+		-- It's used to run code after the new server function has started
+		-- running, and was previously used to respawn all players.
+
+		-- Now that the client code is hot-reloaded without respawning, there's
+		-- no need for this!
 	end,
 })
 

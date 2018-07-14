@@ -1,3 +1,15 @@
+--[[
+	This object's job is to read the common ApiSpec, which defines the protocol
+	for communicating with the server and the types that each method accepts.
+
+	On connecting to the server via `connect`, we generate an object that has
+	a method for each RemoteEvent that attached validation on both ends.
+
+	I've found that this is a super nice way to think about network
+	communication in Roblox, since it lines up with other strongly-typed RPC
+	systems.
+]]
+
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local ApiSpec = require(ReplicatedStorage.Modules.RDC.ApiSpec)

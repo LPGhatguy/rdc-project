@@ -27,6 +27,8 @@ Hot-reloading can be taken advantage of by running the game in either play solo 
 
 Take a look at `src/HotReloadClient.lua` and `src/HotReloadServer.lua` for the shim, and then `src/server/init.server.lua` and `src/client/init.client.lua` for the project-specific implementations.
 
+There are a couple known issues relating to state not being replicated again after a reload, which could be solved by special-casing pieces of state. I didn't explore this problem space very thoroughly, but I think there could be some powerful techniques to apply.
+
 ### Replicated Rodux Store
 An idea that [David Minnerly (Vocksel)](https://github.com/vocksel) proposed awhile ago was to send Rodux actions over the network to synchronize stores across multiple peers.
 

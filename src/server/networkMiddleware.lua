@@ -1,3 +1,9 @@
+--[[
+	This is a fairly abstract middleware that enables you to replicate events
+	to another store via whatever mechanism. It doesn't impose any sort of
+	filtering or propose any solutions, those are handled in main.
+]]
+
 local function networkMiddleware(replicate)
 	return function(nextDispatch, store)
 		return function(action)

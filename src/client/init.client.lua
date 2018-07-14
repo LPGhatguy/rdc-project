@@ -1,7 +1,8 @@
 --[[
 	This is the entry-point for the client.
 
-	It contains setup code for hot-reloading, which is used in development only.
+	It mostly just contains setup code for hot-reloading, which is used in
+	development only.
 ]]
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -20,6 +21,7 @@ local context = {
 	destructors = {},
 	savedActions = savedActions,
 	running = true,
+	wasReloaded = savedState ~= nil,
 }
 
 HotReloadClient.start({

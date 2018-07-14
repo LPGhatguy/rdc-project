@@ -12,6 +12,7 @@ local commonReducers = require(Modules.RDC.commonReducers)
 local Dictionary = require(Modules.RDC.Dictionary)
 local Item = require(Modules.RDC.objects.Item)
 
+-- These imports are pretty darn verbose.
 local addPlayer = require(Modules.RDC.actions.addPlayer)
 local addItemsToPlayerInventory = require(Modules.RDC.actions.addItemsToPlayerInventory)
 local removeItemFromPlayerInventory = require(Modules.RDC.actions.removeItemFromPlayerInventory)
@@ -102,6 +103,10 @@ return function(context)
 		-- callback defined above.
 		networkMiddleware(replicate),
 
+		-- Rodux has a built-in logger middleware to print to the console
+		-- whenever actions are dispatched to show the store.
+		-- Rodux.loggerMiddleware,
+
 		-- Once the Rodux DevTools are available, this will be revisited!
 		-- devTools.middleware,
 	}
@@ -114,7 +119,17 @@ return function(context)
 		clientStart = function(player)
 			store:dispatch(addPlayer(tostring(player.UserId)))
 
-			api:initialStoreState(player, store:getState())
+			-- We need to make sure not to replicate anything secret!
+			local state = store:getState()
+			local commonState = {}
+
+			for key, value in pairs(state) do
+				if commonReducers[key] ~= nil then
+					commonState[key] = value
+				end
+			end
+
+			api:initialStoreState(player, commonState)
 		end,
 
 		pickUpItem = function(player, itemId)
@@ -163,6 +178,8 @@ return function(context)
 				return
 			end
 
+			-- That was an exhausting set of checks, oof.
+
 			local newPosition = root.Position + root.CFrame.lookVector * 4
 			local newItem = Dictionary.join(item, {
 				position = newPosition,
@@ -185,19 +202,23 @@ return function(context)
 		api:destroy()
 	end)
 
-	local worldItems = {}
-	for _ = 1, 15 do
-		local item = Item.new()
-		local x = math.random(-20, 20)
-		local z = math.random(-20, 20)
+	-- If we've hot-reloaded, we don't want to spawn new objects into the world
+	-- since the reloaded state should already have them.
+	if not context.wasReloaded then
+		local worldItems = {}
+		for _ = 1, 15 do
+			local item = Item.new()
+			local x = math.random(-20, 20)
+			local z = math.random(-20, 20)
 
-		item.position = Vector3.new(x, 1.5, z)
-		item.name = getRandomItemName()
+			item.position = Vector3.new(x, 1.5, z)
+			item.name = getRandomItemName()
 
-		worldItems[item.id] = item
+			worldItems[item.id] = item
+		end
+
+		store:dispatch(addItemsToWorld(worldItems))
 	end
-
-	store:dispatch(addItemsToWorld(worldItems))
 
 	print("Server started!")
 end

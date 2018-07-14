@@ -1,3 +1,9 @@
+--[[
+	This file isn't actually interesting or novel, I just felt like writing a
+	name generator that would create nonsensical item names so that I could
+	identify individual items for debugging.
+]]
+
 local modifiers = {
 	"Rusty",
 	"Evil",

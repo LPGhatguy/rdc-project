@@ -7,6 +7,12 @@ local function playerInventories(state, action)
 	state = state or {}
 
 	if action.type == "addPlayer" then
+		local existingPlayer = state[action.playerId]
+
+		if existingPlayer ~= nil then
+			return state
+		end
+
 		return Dictionary.join(state, {
 			[action.playerId] = {},
 		})
