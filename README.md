@@ -10,7 +10,7 @@ Stepping on an item adds it to your inventory, and clicking on an item in your i
 
 The UI, including the inventory and item name pop-ups are rendered using Roact.
 
-The game world itself is managed manually as an example of how to keep a non-declarative system in sync with Rodux.
+The game world itself is managed mostly by Roact with some manually managed properties as an example of how to keep a non-declarative system in sync with Rodux.
 
 ## Key Features
 
@@ -71,6 +71,11 @@ A number of source files reference the "Redux Visualizer" or "Redux DevTools". T
 ![An early version of this project with the Rodux Visualizer panel open](assets/rodux-visualizer.png)
 
 Using the visualizer, it's possible to inspect into both the client and server Rodux stores and visualize all of their values in real time, as well as step backwards and forward through time!
+
+### World Rendered with Roact
+An unusual feature of this project is that the main game world is rendered declaratively with Roact. Most projects probably won't go down this route, but it stands as an interesting example of non-Roact interaction with Roact-controlled elements.
+
+Items dropped in the world are managed by Roact and thus the reconciliation process, but the single-axis billboarded GUIs are oriented towards the camera in a `RenderStepped` loop.
 
 ## License
 This project is available under the CC0 1.0 Universal license. Details are available in [LICENSE](LICENSE). Generally, that means you can whatever you want with it!
